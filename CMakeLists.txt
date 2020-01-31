@@ -27,6 +27,10 @@ option("${PROJECT_NAME}_DOGS" "Enable helper dogs feature" ON)
 option("${PROJECT_NAME}_INSTRUMENTED" "Enable memory allocation statistics" OFF)
 option("${PROJECT_NAME}_RANGECHECK" "Enable bounds-checking of performance-sensitive functions" ON)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    option("${PROJECT_NAME}_APPIMAGE" "Install extra files needed by a Linux AppImage" OFF)
+endif()
+
 # Compiler environment requirements.
 check_library_exists(m pow "" m_FOUND)
 check_library_exists(dl dlopen "" dl_FOUND)

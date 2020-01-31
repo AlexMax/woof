@@ -154,3 +154,10 @@ endif()
 install(FILES ${SDL2_FILES} DESTINATION .)
 install(FILES ${SDL2_MIXER_FILES} DESTINATION .)
 install(FILES ${SDL2_NET_FILES} DESTINATION .)
+
+# Files to package in our AppImage.
+if(${PROJECT_NAME}_APPIMAGE)
+    # These files are specific to our Docker file, and thus we can always
+    # count on their names being accurate.  This is a better approach than
+    # trying to intuit it based on something clever like parsing ldd.
+endif()
