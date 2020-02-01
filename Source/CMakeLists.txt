@@ -1,5 +1,19 @@
 include(WoofSettings)
 
+# Append a symbolic link to a list, along with the file it is pointing to.
+function(list_append_link)
+    list(APPEND "${ARGV0}" "${ARGV1}")
+
+    file(READ_SYMLINK "${ARGV1}" _LINKDST)
+    if(NOT IS_ABSOLUTE "${_LINKDST}")
+        get_filename_component(_LINKDIR "${ARGV1}" DIRECTORY)
+        set(_LINKDST "${_LINKDIR}/${_LINKDST}")
+    endif()
+    list(APPEND "${ARGV0}" "${_LINKDST}")
+
+    set("${ARGV0}" "${${ARGV0}}" PARENT_SCOPE)
+endfunction()
+
 set(WOOF_SOURCES
     am_map.c   am_map.h
     d_deh.c    d_deh.h
@@ -145,19 +159,27 @@ if(SDL2_NET_FILES)
         ${SDL2_NET_FILES} $<TARGET_FILE_DIR:woof>)
 endif()
 
+# Find libraries for our AppImage.
+if(${PROJECT_NAME}_APPIMAGE)
+    # These library locations are specific to the distro in our Docker file.
+    list_append_link(SDL2_FILES "/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0")
+    list(APPEND SDL2_FILES "/usr/lib/x86_64-linux-gnu/libsndio.so.6.1")
+    list_append_link(SDL2_MIXER_FILES "/usr/lib/x86_64-linux-gnu/libSDL2_mixer-2.0.so.0")
+    list_append_link(SDL2_MIXER_FILES "/usr/lib/x86_64-linux-gnu/libfluidsynth.so.1")
+    list_append_link(SDL2_MIXER_FILES "/lib/x86_64-linux-gnu/libreadline.so.7")
+    list_append_link(SDL2_MIXER_FILES "/lib/x86_64-linux-gnu/libtinfo.so.5")
+    list_append_link(SDL2_NET_FILES "/usr/lib/x86_64-linux-gnu/libSDL2_net-2.0.so.0")
+endif()
+
 # Files to package in our distribution.
 if(WIN32)
     install(TARGETS woof RUNTIME DESTINATION .)
+    install(FILES ${SDL2_FILES} DESTINATION .)
+    install(FILES ${SDL2_MIXER_FILES} DESTINATION .)
+    install(FILES ${SDL2_NET_FILES} DESTINATION .)
 else()
     install(TARGETS woof RUNTIME DESTINATION bin)
-endif()
-install(FILES ${SDL2_FILES} DESTINATION .)
-install(FILES ${SDL2_MIXER_FILES} DESTINATION .)
-install(FILES ${SDL2_NET_FILES} DESTINATION .)
-
-# Files to package in our AppImage.
-if(${PROJECT_NAME}_APPIMAGE)
-    # These files are specific to our Docker file, and thus we can always
-    # count on their names being accurate.  This is a better approach than
-    # trying to intuit it based on something clever like parsing ldd.
+    install(FILES ${SDL2_FILES} DESTINATION lib)
+    install(FILES ${SDL2_MIXER_FILES} DESTINATION lib)
+    install(FILES ${SDL2_NET_FILES} DESTINATION lib)
 endif()

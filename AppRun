@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ -z "$APPDIR" ]; then
+    echo "This script is designed to be run inside of an AppImage"
+    exit 1
+fi
+
+export LD_LIBRARY_PATH="${APPDIR}/usr/lib:${LD_LIBRARY_PATH}"
+
+exec "${APPDIR}/usr/bin/woof" "$@"

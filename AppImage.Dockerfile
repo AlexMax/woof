@@ -1,10 +1,9 @@
-FROM ubuntu:18.04
+FROM debian:9
 
 ENV LANG C.UTF-8
 
 RUN apt update && apt install -y \
     build-essential \
-    cmake \
     libsdl2-dev \
     libsdl2-mixer-dev \
     libsdl2-net-dev \
@@ -18,4 +17,4 @@ VOLUME /tmp/woof-install
 
 CMD mkdir /tmp/woof-build && cd /tmp/woof-build && \
     cmake /tmp/woof-src -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/woof-install -DWoof_APPIMAGE=On && \
-    ninja install
+    ninja install && chown -R $UID:$GID /tmp/woof-install
